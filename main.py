@@ -3,6 +3,14 @@ from flask import Flask, render_template, url_for, redirect, request
 import twitter
 import json
 
+# Requests on GAE
+import requests
+import requests_toolbelt.adapters.appengine
+# Use the App Engine Requests adapter. This makes sure that Requests uses
+# URLFetch.
+requests_toolbelt.adapters.appengine.monkeypatch()
+
+
 root_dir = '/neighborhood'
 
 app = Flask(
