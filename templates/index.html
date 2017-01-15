@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Neighborhood Map</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="{{ url_for('static', filename='css/stylish-portfolio.css') }}" rel="stylesheet">
+
+    <!-- Theme Fonts -->
+    <link href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body style="overflow: hidden;">
+
+    <!-- Header -->
+    <header id="top" class="header" data-bind="streetView: sv, style: { backgroundImage: 'url(\'' + sv().streetview() + '\')' }">
+        <div class="text-vertical-center">
+            <h1 data-bind="style: { color: col }">Explore the neighborhood</h1>
+
+            <div class="col-xs-offset-3 col-xs-6" data-bind="style: { 'padding-top': pad }">
+                <div class="form-group input-lg has-feedback" data-bind="css: {'has-error': error}">
+                        <!-- ko if: error -->
+                        <label class="control-label" for="pac-input">Select a location from dropdown box</label>
+                        <!-- /ko -->
+                        <input type="text" class="form-control" id="pac-input" placeholder="Enter a location" aria-describedby="inputStatus" style="height: 55px; padding: 12px 18px; font-size: 20px;">
+                        <!-- ko if: error -->
+                        <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" style="margin-top: 25px; margin-right: 18px"></span>
+                        <span id="inputStatus" class="sr-only">(error)</span>
+                        <!-- /ko -->
+                </div>
+            </div>
+            <div class="col-xs-12 text-center" style="padding-top:50px" data-bind="visible: ready">
+                <a href="#googleMap" class="btn btn-dark btn-lg disabled" data-bind="click: onclickTo, css: {disabled: ready == false}">Find Out More</a>
+            </div>
+            <!--<button class="btn btn-dark btn-lg" data-bind="click: onclick">Find Out More</button>-->
+        </div>
+    </header>
+
+    <!-- GMap -->
+    <section id="googleMap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Neighborhood Map</h2>
+                    <p class="lead">Locate the bossiness around you.</p>
+                </div>
+                <div class="col-md-8">
+                    <div id="map" data-bind="googleMap: myMap"></div>
+                </div>
+                <div class="col-md-4">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th colspan="2">Top 10 results</th>
+                        </tr>
+                        </thead>
+                        <tbody data-bind="template: { name: 'place-template', foreach: myMap().nearbySearch.results }">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+
+
+        <div class="pac-card" id="pac-card" data-bind="with: myMap().nearbySearch">
+            <!--<div>
+                <div id="title">
+                    Autocomplete search
+                </div>
+            </div>-->
+            <div id="type-selector" class="pac-controls">
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="point_of_interest">
+                <label>Point of Interest</label>
+
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="restaurant">
+                <label>Restaurant</label>
+
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="lodging">
+                <label>Lodging</label>
+
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="store">
+                <label>Store</label>
+
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="bar">
+                <label>Bar</label>
+
+                <input type="radio" name="type" data-bind="checked: type, click: changeTypeCallback" value="gas_station">
+                <label>Gas</label>
+            </div>
+            <div class="pac-controls">
+                <input type="checkbox" id="use-strict-bounds" data-bind="checked: update">
+                <label>Redo search when map moved</label>
+            </div>
+        </div>
+
+        <!--<div id="infowindow-content">-->
+        <!--<img src="" width="16" height="16" id="place-icon" data-bind="attr: { src: myMap().infowindowContent.placeicon }">-->
+        <!--<span id="place-name" class="title" data-bind="text: myMap().infowindowContent.placename"></span><br>-->
+        <!--<span id="place-address" data-bind="text: myMap().infowindowContent.placeaddress"></span>-->
+        <!--</div>-->
+
+        <div style="display: none">
+            <div id="infowindow-content" data-bind="with: myMap().infowindowContent">
+                <table>
+                    <tr id="iw-url-row" class="iw_table_row">
+                        <td id="iw-icon" class="iw_table_icon">
+                            <img src="" class="hotelIcon" data-bind="attr: { src: placeicon }"/>
+                        </td>
+                        <td id="iw-url">
+                            <a href="#" data-bind="attr: { href: placeurl }"><b data-bind="text: placename"></b></a>
+                        </td>
+                    </tr>
+                    <tr id="iw-address-row" class="iw_table_row">
+                        <td class="iw_attribute_name">Address:</td>
+                        <td id="iw-address" data-bind="text: placeaddress"></td>
+                    </tr>
+                    <tr id="iw-phone-row" class="iw_table_row" data-bind="visible: placephone">
+                        <td class="iw_attribute_name">Telephone:</td>
+                        <td id="iw-phone" data-bind="text: placephone"></td>
+                    </tr>
+                    <tr class="iw_table_row" data-bind="visible: placehours">
+                        <td class="iw_attribute_name">Hours:</td>
+                        <td data-bind="text: placehours"></td>
+                    </tr>
+                    <tr class="iw_table_row" data-bind="visible: placeprice">
+                        <td class="iw_attribute_name">Price:</td>
+                        <td data-bind="html: placeprice"></td>
+                    </tr>
+                    <tr id="iw-rating-row" class="iw_table_row" data-bind="visible: placerating">
+                        <td class="iw_attribute_name">Rating:</td>
+                        <td id="iw-rating" data-bind="html: placerating"></td>
+                    </tr>
+                    <tr id="iw-website-row" class="iw_table_row" data-bind="visible: placewebsite">
+                        <td class="iw_attribute_name">Website:</td>
+                        <td id="iw-website" data-bind="text: placewebsite"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <script type="text/html" id="place-template">
+            <tr data-bind="click: onclick">
+                <td data-bind="visible: icon">
+                    <img src="" class="placeIcon" data-bind="attr: { src: icon }"/>
+                </td>
+                <td data-bind="text: name" style="vertical-align: middle"></td>
+            </tr>
+        </script>
+    </section>
+
+
+    <!-- NYTimes -->
+    <section id="nytimes" class="bg-primary">
+        <div class="container">
+            <div class="row" data-bind="nytimes: myNews, with: myNews()">
+                <div class="col-lg-12 text-center">
+                    <h2 data-bind="text: title"></h2>
+                    <!--<p class="lead">What's going on in your city.</p>-->
+                    <hr class="small">
+                </div>
+
+                <div class="col-lg-6 list-group" data-bind="foreach: articles">
+                    <a href="" class="list-group-item active" target="_blank" data-bind="attr: { href: url }">
+                        <h4 class="list-group-item-heading" data-bind="text: headline"></h4>
+                        <p class="list-group-item-text" data-bind="text: snippet"></p>
+                    </a>
+                </div>
+
+                <div class="col-lg-6 list-group" data-bind="foreach: articlesR">
+                    <a href="" class="list-group-item active" target="_blank" data-bind="attr: { href: url }">
+                        <h4 class="list-group-item-heading" data-bind="text: headline"></h4>
+                        <p class="list-group-item-text" data-bind="text: snippet"></p>
+                    </a>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+
+    <!-- Twitter -->
+    <section id="twitter">
+        <div class="container">
+            <div class="row" data-bind="twitter: myTweets, with: myTweets()">
+                <div class="col-lg-12 text-center">
+                    <h2 data-bind="text: title"></h2>
+                    <!--<p class="lead">What's going on in your city.</p>-->
+                    <hr class="small">
+                </div>
+
+                <div class="col-lg-6 list-group" data-bind="foreach: tweets">
+                    <a href="" class="list-group-item" target="_blank" data-bind="attr: { href: 'http://twitter.com/' + screen_name + '/status/' + status_id }">
+                        <h4 class="list-group-item-heading" data-bind="text: tweet_text"></h4>
+                        &#8212;&nbsp;<b data-bind="text: user_name"></b>&nbsp;(@<span class="list-group-item-text" data-bind="text: screen_name"></span>)&nbsp;<span class="list-group-item-text" data-bind="text: tweet_created"></span>
+                    </a>
+                </div>
+
+                <div class="col-lg-6 list-group" data-bind="foreach: tweetsR">
+                    <a href="" class="list-group-item" target="_blank" data-bind="attr: { href: 'http://twitter.com/' + screen_name + '/status/' + status_id }">
+                        <h4 class="list-group-item-heading" data-bind="text: tweet_text"></h4>
+                        &#8212;&nbsp;<b data-bind="text: user_name"></b>&nbsp;(@<span class="list-group-item-text" data-bind="text: screen_name"></span>)&nbsp;<span class="list-group-item-text" data-bind="text: tweet_created"></span>
+                    </a>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+
+    <!-- Flickr -->
+    <section id="flickr" class="bg-primary">
+        <div class="container" data-bind="flickr: myFlickr, with: myFlickr()">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 data-bind="text: title"></h2>
+                    <hr class="small">
+                </div>
+
+                <!--<div class="col-lg-12 list-group" data-bind="foreach: photos">-->
+                <!--<a href="" class="list-group-item" target="_blank" data-bind="attr: { href: url }">-->
+                <!--<h4 class="list-group-item-heading" data-bind="text: title"></h4>-->
+                <!--<img src="" width="64" data-bind="attr: { src: src }">-->
+
+                <!--&#8212;<b data-bind="text: owner"></b>-->
+                <!--</a>-->
+                <!--</div>-->
+
+            </div>
+            <!-- /.row -->
+
+            <div class="row" >
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div id="carousel-flickr" class="carousel slide" data-ride="carousel">
+                        <!-- Indicators -->
+                        <!--<ol class="carousel-indicators">-->
+                            <!--<li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>-->
+                            <!--<li data-target="#carousel-example-generic" data-slide-to="1"></li>-->
+                            <!--<li data-target="#carousel-example-generic" data-slide-to="2"></li>-->
+                        <!--</ol>-->
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner" role="listbox" data-bind="foreach: photos">
+                            <!-- ko if: $index() == 0 -->
+                            <div class="item active">
+                                <a href="" target="_blank" data-bind="attr: { href: url }">
+                                    <img src="" data-bind="attr: { src: src, alt: title }">
+                                </a>
+                                <div class="carousel-caption">
+                                    <h3 data-bind="text: title"></h3>
+                                </div>
+                            </div>
+                            <!-- /ko -->
+
+                            <!-- ko if: $index() > 0 -->
+                            <div class="item">
+                                <a href="" target="_blank" data-bind="attr: { href: url }">
+                                    <img src="" data-bind="attr: { src: src, alt: title }">
+                                </a>
+                                <div class="carousel-caption">
+                                    <h3 data-bind="text: title"></h3>
+                                </div>
+                            </div>
+                            <!-- /ko -->
+                        </div>
+
+                        <!-- Controls -->
+                        <a class="left carousel-control" href="#carousel-flickr" role="button" data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#carousel-flickr" role="button" data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- /.container -->
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1 text-center">
+                    <h4><strong>Neighborhood Map</strong>
+                    </h4>
+                    <p>by
+                        <br>K. Liu</p>
+{#                    <ul class="list-unstyled">#}
+{#                        <li><i class="fa fa-globe fa-fw"></i> http://kliu99-gatech.appspot.com</a></li>#}
+{#                        <li><i class="fa fa-github fa-fw"></i> <a href="">kliu99</a></li>#}
+{#                        <li><i class="fa fa-envelope-o fa-fw"></i> <a href="mailto:name@example.com">name@example.com</a>#}
+{#                        </li>#}
+{#                    </ul>#}
+                    <br>
+                    <ul class="list-inline">
+                        <li>
+                            <a href="http://kliu99-gatech.appspot.com"><i class="fa fa-globe fa-fw fa-3x"></i></a>
+                        </li>
+                        <li>
+                            <a href="http://github.com/kliu99"><i class="fa fa-github fa-fw fa-3x"></i></a>
+                        </li>
+{#                        <li>#}
+{#                            <a href="#"><i class="fa fa-dribbble fa-fw fa-3x"></i></a>#}
+{#                        </li>#}
+                    </ul>
+                    <hr class="small">
+                    <p class="text-muted">Copyright &copy; K. Liu 2016</p>
+                </div>
+            </div>
+        </div>
+        <a id="to-top" href="#top" class="btn btn-dark btn-lg"><i class="fa fa-chevron-up fa-fw fa-1x"></i></a>
+    </footer>
+
+    <!-- jQuery -->
+
+    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script>
+
+    // smooth scroll to # link
+    $(function() {
+        $('a[href*="#"]:not([href="#"]):not([href="#carousel-flickr"])').click(function() {
+            if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+                var target = $(this.hash);
+                target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+                if (target.length) {
+                    $('html, body').animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                    return false;
+                }
+            }
+        });
+    });
+
+    //#to-top button appears after scrolling
+    var fixed = false;
+    $(document).scroll(function() {
+        if ($(this).scrollTop() > 250) {
+            if (!fixed) {
+                fixed = true;
+                // $('#to-top').css({position:'fixed', display:'block'});
+                $('#to-top').show("slow", function() {
+                    $('#to-top').css({
+                        position: 'fixed',
+                        display: 'block'
+                    });
+                });
+            }
+        } else {
+            if (fixed) {
+                fixed = false;
+                $('#to-top').hide("slow", function() {
+                    $('#to-top').css({
+                        display: 'none'
+                    });
+                });
+            }
+        }
+    });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/knockout-3.4.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/google-map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/street-view.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/nytimes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/twitter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/flickr.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewmodel/body.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByEqDgf-PRFLEuJxP7vVNIsmVIofdd79U&libraries=places&callback=koInit"
+            async defer></script>
+
+</body>
+
+</html>
